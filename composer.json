@@ -1,5 +1,5 @@
 {
-    "name": "Munza/EloquentQueryable",
+    "name": "munza/eloquent-queryable",
     "type": "library",
     "description": "a PHP package to automatically inject query rules in Eloquent model queries from request query parameters.",
     "keywords": [
