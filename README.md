@@ -1,11 +1,4 @@
-# eloquent-queryable
-
-[![Latest Version on Packagist][ico-version]][link-packagist]
-[![Software License][ico-license]](LICENSE.md)
-[![Build Status][ico-travis]][link-travis]
-[![Coverage Status][ico-scrutinizer]][link-scrutinizer]
-[![Quality Score][ico-code-quality]][link-code-quality]
-[![Total Downloads][ico-downloads]][link-downloads]
+# Eloquent Queryable
 
 A PHP package to automatically inject query rules in Eloquent model queries from request query parameters.
 
@@ -109,44 +102,6 @@ http://localhost:8000/users?q[where_created_at_between]=2017-07-19%2008:14:45,20
 http://localhost:8000/users?q[where_created_at_not_between]=2017-07-19%2008:14:45,2017-07-19%2008:14:48
 ```
 
-## Change log
-
-Please see [CHANGELOG](CHANGELOG.md) for more information on what has changed recently.
-
-## Testing
-
-``` bash
-$ composer test
-```
-
-## Contributing
-
-Please see [CONTRIBUTING](CONTRIBUTING.md) and [CONDUCT](CONDUCT.md) for details.
-
-## Security
-
-If you discover any security related issues, please email tawsif.aqib@gmail.com instead of using the issue tracker.
-
-## Credits
-
-- [Tawsif Aqib][link-author]
-- [All Contributors][link-contributors]
-
 ## License
 
 The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
-
-[ico-version]: https://img.shields.io/packagist/v/munza/eloquent-queryable.svg?style=flat-square
-[ico-license]: https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square
-[ico-travis]: https://img.shields.io/travis/munza/eloquent-queryable/master.svg?style=flat-square
-[ico-scrutinizer]: https://img.shields.io/scrutinizer/coverage/g/munza/eloquent-queryable.svg?style=flat-square
-[ico-code-quality]: https://img.shields.io/scrutinizer/g/munza/eloquent-queryable.svg?style=flat-square
-[ico-downloads]: https://img.shields.io/packagist/dt/munza/eloquent-queryable.svg?style=flat-square
-
-[link-packagist]: https://packagist.org/packages/munza/eloquent-queryable
-[link-travis]: https://travis-ci.org/munza/eloquent-queryable
-[link-scrutinizer]: https://scrutinizer-ci.com/g/munza/eloquent-queryable/code-structure
-[link-code-quality]: https://scrutinizer-ci.com/g/munza/eloquent-queryable
-[link-downloads]: https://packagist.org/packages/munza/eloquent-queryable
-[link-author]: https://munza.github.io
-[link-contributors]: ../../contributors

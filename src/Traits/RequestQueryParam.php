@@ -14,7 +14,7 @@ trait RequestQueryable
 
         foreach ($queryParams as $queryParam => $args) {
             foreach(
-                config('eloquent-queryable.query_keys.prefix') as $key => $value
+                config('eloquent-queryable.query_prefix') as $key => $value
             ) {
                 if (starts_with($queryParam, $value)) {
                     $this->addQueryCondition(
@@ -54,14 +54,16 @@ trait RequestQueryable
     }
 
     /**
-     * Get the 'q' query string from the url
+     * Get the query string from the url
      * and return a formatted array.
      *
      * @return array
      */
     private function getQueryParams()
     {
-        $queryParams = app('request')->get('q');
+        $queryParams = config('eloquent-queryable.key_prefix')
+            ? app('request')->get(config('eloquent-queryable.key_prefix'))
+            : app('request')->all();
 
         if (is_null($queryParams)) return [];
 
@@ -95,13 +97,13 @@ trait RequestQueryable
     private function getWhereQueryCondition($queryParam, $or = false)
     {
         $whereType = $or
-            ? config('eloquent-queryable.query_keys.prefix.or_where')
-            : config('eloquent-queryable.query_keys.prefix.where');
+            ? config('eloquent-queryable.query_prefix.or_where')
+            : config('eloquent-queryable.query_prefix.where');
 
         list($match, $comparator, $wrapper) = [null, null, null];
 
         foreach (
-            config('eloquent-queryable.query_keys.postfix')as $key => $value
+            config('eloquent-queryable.query_postfix')as $key => $value
         ) {
             if (ends_with($queryParam, $value)) {
                 preg_match(

@@ -14,7 +14,7 @@ class EloquentQueryableServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->publishes([
-            __DIR__.'/../resources/config/eloquent-queryable.php'
+            __DIR__.'/../config/eloquent-queryable.php'
                 => base_path('config/eloquent-queryable.php'),
         ], 'config');
     }
@@ -28,7 +28,7 @@ class EloquentQueryableServiceProvider extends ServiceProvider
     {
         if (config('eloquent-queryable')) {
             $this->mergeConfigFrom(
-                __DIR__.'/../resources/config/eloquent-queryable.php',
+                __DIR__.'/../config/eloquent-queryable.php',
                 'eloquent-queryable'
             );
         }
