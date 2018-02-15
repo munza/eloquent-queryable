@@ -13,14 +13,9 @@ trait RequestQueryable
         $newQuery = parent::newQuery();
 
         foreach ($queryParams as $queryParam => $args) {
-            foreach(
-                config('eloquent-queryable.query_prefix') as $key => $value
-            ) {
+            foreach(config('eloquent-queryable.query_prefix') as $key => $value) {
                 if (starts_with($queryParam, $value)) {
-                    $this->addQueryCondition(
-                        $newQuery, $queryParam, $args, $key
-                    );
-                    break;
+                    $this->addQueryCondition($newQuery, $queryParam, $args, $key);
                 }
             }
         }
@@ -42,50 +37,20 @@ trait RequestQueryable
             case 'where':
                 $this->addWhereQuery($query, $queryParam, $args);
                 break;
+
             case 'or_where':
                 $this->addWhereQuery($query, $queryParam, $args, true);
                 break;
+
             default:
+                // dd($args);
                 foreach ($args as $arg) {
-                    $query->{$queryKey}(...$arg);
+                    if ($this->isQueryable($arg)) {
+                        $query->{camel_case($queryKey)}(...$arg);
+                    }
                 }
                 break;
         }
-    }
-
-    /**
-     * Get the query string from the url
-     * and return a formatted array.
-     *
-     * @return array
-     */
-    private function getQueryParams()
-    {
-        $queryParams = config('eloquent-queryable.key_prefix')
-            ? app('request')->get(config('eloquent-queryable.key_prefix'))
-            : app('request')->all();
-
-        if (is_null($queryParams)) return [];
-
-        foreach ($queryParams as $queryParam => $value) {
-            $queryParams[$queryParam] = $this->parseQueryArgs($value);
-        }
-
-        return $queryParams;
-    }
-
-    /**
-     * Parse the query argument string
-     * and convert into an array.
-     *
-     * @param  string $arg
-     * @return array
-     */
-    private function parseQueryArgs($arg)
-    {
-        return array_map(function($item) {
-            return explode(',', $item);
-        }, explode(';', $arg));
     }
 
     /**
@@ -102,15 +67,10 @@ trait RequestQueryable
 
         list($match, $comparator, $wrapper) = [null, null, null];
 
-        foreach (
-            config('eloquent-queryable.query_postfix')as $key => $value
-        ) {
+        foreach (config('eloquent-queryable.query_postfix') as $key => $value) {
             if (ends_with($queryParam, $value)) {
-                preg_match(
-                    "/^{$whereType}_(.*?)_{$value}$/", $queryParam, $match
-                );
-                list($comparator, $wrapper) =
-                    $this->getComparatorAndWrapperFor($key);
+                preg_match("/^{$whereType}_(.*?)_{$value}$/", $queryParam, $match);
+                list($comparator, $wrapper) = $this->getComparatorAndWrapperFor($key);
                 break;
             }
         }
@@ -154,12 +114,15 @@ trait RequestQueryable
      * @param \Illuminate\Database\Eloquent\Builder $query
      * @param array                                 $queryParam
      * @param array                                 $args
-     * @param bool                                  $or
+     * @param boolean                               $or
      */
     private function addWhereQuery($query, $queryParam, $args, $or = false)
     {
-        list($field, $comparator, $argsWrapper) =
-            $this->getWhereQueryCondition($queryParam, $or);
+        list($field, $comparator, $argsWrapper) = $this->getWhereQueryCondition($queryParam, $or);
+
+        if (!$this->isQueryable($field)) {
+            return;
+        }
 
         // For where query conditions with comparator
         if ($field && $comparator && is_array($argsWrapper)) {
@@ -172,12 +135,7 @@ trait RequestQueryable
 
         // For where in and between query conditions
         if ($field && !$comparator && !is_array($argsWrapper)) {
-            foreach ([
-                'not_in',
-                'in',
-                'not_between',
-                'between',
-            ] as $key) {
+            foreach (['not_in', 'in', 'not_between', 'between'] as $key) {
                 if (ends_with($queryParam, $key)) {
                     $where = ($or ? 'orWhere' : 'where')
                         .(starts_with($key, 'not_') ? 'Not' : '')
@@ -190,4 +148,94 @@ trait RequestQueryable
         }
     }
 
+    /**
+     * Get the query string from the url
+     * and return a formatted array.
+     *
+     * @return array
+     */
+    private function getQueryParams()
+    {
+        $queryParams = config('eloquent-queryable.key_prefix')
+            ? app('request')->get(config('eloquent-queryable.key_prefix'))
+            : app('request')->all();
+
+        if (is_null($queryParams)) return [];
+
+        foreach ($queryParams as $queryParam => $value) {
+            if ($this->isParsable($value)) {
+                $queryParams[$queryParam] = $this->parseQueryArgs($value);
+            }
+        }
+
+        return $queryParams;
+    }
+
+    /**
+     * Parse the query argument string
+     * and convert into an array.
+     *
+     * @param  string $arg
+     * @return array
+     */
+    private function parseQueryArgs($arg)
+    {
+        return array_map(function ($item) {
+            $key = explode(',', $item);
+            switch (true) {
+                case starts_with($key[0], '-'):
+                    return [substr($key[0], 1), 'desc'];
+
+                case starts_with($key[0], '+'):
+                    return [substr($key[0], 1), 'asc'];
+
+                default:
+                    return $key;
+            }
+        }, explode(';', $arg));
+    }
+
+    /**
+     * Check if a query value is parseable.
+     *
+     * @param  string|array  $queryValue
+     * @return boolean
+     */
+    private function isParsable($queryValue)
+    {
+        if (is_string($queryValue)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Check if a query value is queryable.
+     *
+     * @param  string|array $attribute
+     * @return boolean
+     */
+    private function isQueryable($attribute)
+    {
+        switch (true) {
+            case !property_exists($this, 'queryable'):
+            case $this->queryable == '*':
+                return true;
+
+            case is_string($attribute):
+                return in_array($attribute, $this->queryable);
+
+            case is_array($attribute):
+                foreach ($attribute as $attr) {
+                    if (in_array($attr, $this->queryable)) {
+                        return true;
+                    }
+                }
+                return false;
+
+            default:
+                return false;
+        }
+    }
 }

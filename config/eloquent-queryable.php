@@ -23,6 +23,7 @@ return [
     |
     | eg. ?q[select]=id,name
     |     ?q[order_by]=name,desc;created_at
+    |     ?q[order_by]=-name;created_at
     |     ?q[limit]=20
     |     ?q[offset]=10
     |     ?q[with]=posts,posts.comments

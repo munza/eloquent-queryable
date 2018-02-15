@@ -68,6 +68,18 @@ $app->configure('eloquent-queryable');
 
 Add `Munza\EloquentQueryable\Traits\RequestQueryable` trait in the model to use.
 
+By default all the attributes and relationships in the model is queryable. To restrict it use the following attribute in the model.
+
+```php
+    protected $queryable = [
+        'id',    // attribute
+        'posts', // relationship
+        // ...
+    ];
+```
+
+`protected $queyrable = '*'` also means any attribute or relatinship can be used to query.
+
 ## Example Queries
 
 ```
