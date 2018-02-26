@@ -72,8 +72,9 @@ By default all the attributes and relationships in the model is queryable. To re
 
 ```php
     protected $queryable = [
-        'id',    // attribute
-        'posts', // relationship
+        'id',           // attribute
+        'posts',        // relationship
+        'posts.title',  // relationship field
         // ...
     ];
 ```
@@ -112,6 +113,8 @@ http://localhost:8000/users?q[where_id_not_in]=1,2,3
 
 http://localhost:8000/users?q[where_created_at_between]=2017-07-19%2008:14:45,2017-07-19%2008:14:48
 http://localhost:8000/users?q[where_created_at_not_between]=2017-07-19%2008:14:45,2017-07-19%2008:14:48
+
+http://localhost:8000/users?q[where_posts.title_starts_with]=Hello
 ```
 
 ## License

@@ -43,7 +43,6 @@ trait RequestQueryable
                 break;
 
             default:
-                // dd($args);
                 foreach ($args as $arg) {
                     if ($this->isQueryable($arg)) {
                         $query->{camel_case($queryKey)}(...$arg);
@@ -124,13 +123,30 @@ trait RequestQueryable
             return;
         }
 
-        // For where query conditions with comparator
-        if ($field && $comparator && is_array($argsWrapper)) {
-            $query->{$or ? 'orWhere' : 'where'}(
-                $field,
-                $comparator,
-                $argsWrapper[0].$args[0][0].$argsWrapper[1]
+        // check if the field belongs to a relationship
+        if (str_contains($field, '.')) {
+            preg_match("/(^.*)\.(.*?)$/", $field, $fields);
+            list($field, $relation, $relationField) = $fields;
+
+            $query->whereHas($relation,
+                function ($q) use ($relationField, $comparator, $argsWrapper, $args) {
+                    $q->where(
+                        $relationField,
+                        $comparator,
+                        $argsWrapper[0].$args[0][0].$argsWrapper[1]
+                    );
+                }
             );
+
+        // For where query conditions with comparator
+        } else {
+            if ($field && $comparator && is_array($argsWrapper)) {
+                $query->{$or ? 'orWhere' : 'where'}(
+                    $field,
+                    $comparator,
+                    $argsWrapper[0].$args[0][0].$argsWrapper[1]
+                );
+            }
         }
 
         // For where in and between query conditions
