@@ -1,5 +1,7 @@
 # Eloquent Queryable
 
+### This repo is not maintained anymore. You can check [spatie/laravel-query-builder](https://github.com/spatie/laravel-query-builder) as a better alternative.
+
 A PHP package to automatically inject query rules in Eloquent model queries from request query parameters.
 
 Filtering query results in Laravel/Lumen application with Eloquent is a very common task that all the developers need to do in almost any project. The purpose of this package is to provide a single trait to give the ability to filter and add query logic to Elouqent models using request query strings.
